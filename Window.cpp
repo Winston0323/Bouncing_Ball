@@ -10,6 +10,7 @@ Plain* Window::plain;
 //Sphere* Window::sphere;
 Ball* Window::ball;
 Cube* Window::cube;
+std::vector<Plain*> Window::plains;
 
 // Window Properties
 int Window::width;
@@ -20,7 +21,7 @@ glm::vec3 Window::windSpeed = glm::vec3(-1.0, -1.0, -1.0);
 
 //particle system
 glm::vec3 Window::defaultPos = glm::vec3(0);
-glm::vec3 Window::defaultVelocity = glm::vec3(0,0,0);
+glm::vec3 Window::defaultVelocity = glm::vec3(10,-5,5);
 glm::vec3 Window::defaultWindVelocity = glm::vec3(0,0,0);
 
 //time
@@ -33,11 +34,12 @@ GLfloat Window::simulationRate = 200.0f;
 GLfloat Window::renderTimeStep = 1.0f / renderRate;
 GLfloat Window::renderTime = renderTimeStep;
 GLfloat Window::simTimeStep = 1.0f / simulationRate;
+ParticleSystem* psb;
 
-bool Window::simStart = true;
+bool Window::simStart = false;
 // The shader program id
 GLuint Window::shaderProgram;
-GLuint Window::discoShaderProgram;
+GLuint Window::pointShaderProgram;
 
 // Camera Properties
 Camera* Cam;
@@ -60,12 +62,14 @@ bool Window::initializeProgram() {
 		std::cerr << "Failed to initialize shader program" << std::endl;
 		return false;
 	}
-	discoShaderProgram = LoadShaders("shaders/discoShader.vert", "shaders/discoShader.frag");
+
+	// Create a shader program with a vertex shader and a fragment shader.
+	pointShaderProgram = LoadShaders("shaders/pointShader.vert", "shaders/pointShader.frag");
 
 	// Check the shader program.
-	if (!discoShaderProgram)
+	if (!pointShaderProgram)
 	{
-		std::cerr << "Failed to initialize disco shader program" << std::endl;
+		std::cerr << "Failed to initialize point shader program" << std::endl;
 		return false;
 	}
 
@@ -82,7 +86,9 @@ bool Window::initializeObjects()
 	ball = new Ball(defaultPos, defaultVelocity, defaultWindVelocity, 
 					GRAV_COE, DEFAULT_AIRRESIST, DEFAULT_RADIUS, 
 					DEFAULT_ELASTIC, DEFAULT_FRICTION, cube);
-	
+	std::vector<Plain*>p;
+	psb = new ParticleSystem(p, 1.0f, 0.1f, 3.0f, 0.5f);
+
 	return true;
 }
 
@@ -202,7 +208,9 @@ void Window::idleCallback()
 
 			GLfloat restTime = 0.0f;
 			ball->update(simTimeStep, restTime);
+			psb->update(simTimeStep, ball->GetPos(), ball->GetVelocity(), ball->GetRadius());
 			calTime += restTime;
+			
 		}
 	}
 	else {
@@ -212,6 +220,7 @@ void Window::idleCallback()
 
 	//update values
 	Cam->Update();
+	//partSys->update();
 }
 
 void Window::displayCallback(GLFWwindow* window)
@@ -220,11 +229,10 @@ void Window::displayCallback(GLFWwindow* window)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 
 	// Render the object.
-	glUniformMatrix4fv(glGetUniformLocation(discoShaderProgram, "cameraPos"), 1, GL_FALSE, glm::value_ptr(glm::vec3(0)));
-	ball->draw(Cam->GetView(), Cam->GetProject(), Window::discoShaderProgram);
-	
+	ball->draw(Cam->GetView(), Cam->GetProject(), Window::shaderProgram, Window::pointShaderProgram);
+	psb->draw(Cam->GetView(), Cam->GetProject(), Window::pointShaderProgram);
 	cube->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-	//drawGUI();
+	drawGUI();
 	
 	// Gets events, including input such as keyboard and mouse or window resizing.
 	glfwPollEvents();

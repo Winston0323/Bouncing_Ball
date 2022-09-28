@@ -3,7 +3,8 @@
 #define _BALL_H_
 
 #include "core.h"
-#include "plain.h"
+
+#include "ParticleSystem.h"  
 #include "cube.h"
 #include "Sphere.h"
 #include <iostream>
@@ -19,11 +20,14 @@ private:
 	GLfloat mass, radius, elastic, 
 		friction, airResist, gravMult, grav;
 	
+	
+	
 	Sphere* sphere;
 	Cube* cube;
 	bool lastHit;
 	Plain* lastHitPlain;
 	Plain* dummyCube;
+	ParticleSystem* psb;
 
 
 public:
@@ -34,11 +38,12 @@ public:
 	~Ball();
 
 	void update(GLfloat timeStep, GLfloat& restTime);
-	void draw(const glm::mat4& projection, const glm::mat4& view, GLuint shader);
+	void draw(const glm::mat4& projection, const glm::mat4& view, GLuint shader, GLuint pShader);
 	void ApplyForce(glm::vec3 f);
 	
 	glm::vec3 GetPos();
 	glm::vec3 GetVelocity();
+	GLfloat GetRadius() { return this->radius; }
 
 	void addNorm(glm::vec3 normal);
 	void clearNorm();

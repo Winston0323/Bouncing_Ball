@@ -30,6 +30,7 @@ public:
 	Plain* getRight() { return right; }
 	Plain* getFront() { return front; }
 	Plain* getBack() { return back; }
+	std::vector<Plain*> getPlains() { return this->plains; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////

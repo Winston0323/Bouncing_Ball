@@ -8,6 +8,7 @@
 #include "Plain.h"
 #include "shader.h"
 #include "Camera.h"
+#include "ParticleSystem.h"
 #include <cstdlib>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -21,7 +22,7 @@ public:
 	//static Sphere* sphere;
 	static Ball* ball;
 	static Cube* cube;
-
+	static std::vector<Plain*> plains;
 	// Window Properties
 	static int width;
 	static int height;
@@ -48,7 +49,7 @@ public:
 
 	// Shader Program 
 	static GLuint shaderProgram;
-	static GLuint discoShaderProgram;
+	static GLuint pointShaderProgram;
 
 	// Act as Constructors and desctructors 
 	static bool initializeProgram();

@@ -20,7 +20,7 @@ Plain::Plain(GLfloat size, glm::vec3 origin, glm::vec3 color)
 		glm::vec3(-offset + origin.x , origin.y, -offset + origin.z),//topleft
 		glm::vec3(offset + origin.x, origin.y, -offset + origin.z),//topright
 		glm::vec3(-offset + origin.x, origin.y, +offset + origin.z),//downleft
-		glm::vec3(+offset + origin.x, origin.y, +offset+ origin.z)//downright
+		glm::vec3(+offset + origin.x, origin.y, +offset + origin.z)//downright
 	};
 
 	// Specify normals
@@ -108,9 +108,84 @@ void Plain::update()
 {
 }
 ////////////////////////////////////////////////////////////////////////////////
-void Plain::spin(GLfloat angle, glm::vec3 axis) 
+void Plain::spin(GLfloat angle, glm::vec3 axis)
 {
-	model = glm::translate(origin) * glm::rotate(glm::radians(angle), axis) * glm::translate(-origin)* model;
-	
+	model = glm::translate(origin) * glm::rotate(glm::radians(angle), axis) * glm::translate(-origin) * model;
+
 }
 
+////////////////////////////////////////////////////////////////////////////////
+bool Plain::checkHit(glm::vec3 pos, glm::vec3 nextPos, glm::vec3 vel, GLfloat radius)
+{
+	//pos = pos - this->norm * radius;
+
+	GLfloat thit = glm::dot((this->origin - pos), this->norm) / glm::dot(vel, this->norm);
+	if (thit < 1 / DEFAULT_SIMRATE && thit >= 0) {
+
+		glm::vec3 xhit = pos + thit * vel;
+		glm::vec2 xhitTD;
+		std::vector<glm::vec2> pjtPoint;
+		//project to 2D
+		if (std::abs(this->norm.x) > std::abs(this->norm.y) && std::abs(this->norm.x) > std::abs(this->norm.z)) {
+			for (int i = 0; i < positions.size(); i++) {
+				pjtPoint.push_back(glm::vec2(positions[i].y, positions[i].z));
+			}
+			xhitTD = glm::vec2(xhit.y, xhit.z);
+
+		}
+		else if (std::abs(this->norm.y) > std::abs(this->norm.x) && std::abs(this->norm.y) > std::abs(this->norm.z))
+		{
+			for (int i = 0; i < positions.size(); i++) {
+				pjtPoint.push_back(glm::vec2(positions[i].z, positions[i].x));
+			}
+			xhitTD = glm::vec2(xhit.z, xhit.x);
+		}
+		else if (std::abs(this->norm.z) > std::abs(this->norm.x) && std::abs(this->norm.z) > std::abs(this->norm.y))
+		{
+			for (int i = 0; i < positions.size(); i++) {
+				pjtPoint.push_back(glm::vec2(positions[i].x, positions[i].y));
+			}
+			xhitTD = glm::vec2(xhit.x, xhit.y);
+		}
+		else {
+			return false;
+		}
+		//comput edge vector
+		std::vector<glm::vec2> edgeVec;
+		std::vector<glm::vec2> hitVec;
+		std::vector<glm::mat2> matrix;
+		GLfloat ref = 0;
+		for (int i = 0; i < pjtPoint.size(); i++) {
+			glm::vec2 edge;
+			if (i == pjtPoint.size() - 1) {
+				edge = pjtPoint[0] - pjtPoint[i];
+			}
+			else {
+				edge = pjtPoint[i + 1] - pjtPoint[i];
+			}
+
+			glm::vec2 hit = xhitTD - pjtPoint[i];
+			glm::mat2 mat;
+			mat[0][0] = edge.x;
+			mat[1][0] = edge.y;
+			mat[0][1] = hit.x;
+			mat[1][1] = hit.y;
+
+			GLfloat det = glm::determinant(mat);
+			if (det * ref < 0) {//different sign
+				return false;
+			}
+			if (det != 0) {
+				ref = det;
+			}
+		}
+		return true;
+
+		//comput 
+
+	}
+	else {
+
+		return false;
+	}
+}

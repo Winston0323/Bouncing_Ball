@@ -28,12 +28,13 @@ Ball::Ball(glm::vec3 position, glm::vec3 velocity,
 	this->windVelocity = windVelocity;
 	this->elastic = elastic;
 	this->friction = friction;
-	defaultForces();//initialize forces
+	this->defaultForces();//initialize forces
 	//representation
 	this->sphere = new Sphere(1.0, glm::vec3(0.3, 0.3, 0.4));
 	this->cube = cube;
-
+	std::vector<Plain*>p;
 	this->lastHit = false;
+	//psb = new ParticleSystem(p, 1.0f, 0.0f, 0.5f, 0.5f);
 	
 }
 
@@ -45,18 +46,17 @@ Ball::~Ball()
 ////////////////////////////////////////////////////////////////////////////////
 void Ball::update(GLfloat timeStep, GLfloat& restTime)
 {
-	
+	//this->partSys->update(timeStep);
 	this->gravForceMult = glm::vec3(0, -this->mass * this->grav * this->gravMult, 0);
 	boxCollision(timeStep, restTime);
+	//psb->update(timeStep, this->position, this->velocity,this->radius);
 	
-	std::cout << "Vec y is " << this->velocity.y<<"\n";
-	//aeroDrag();
-	//sphere->translation(position);
 }
 ////////////////////////////////////////////////////////////////////////////////
-void Ball::draw(const glm::mat4& projection, const glm::mat4& view, GLuint shader)
+void Ball::draw(const glm::mat4& projection, const glm::mat4& view, GLuint shader, GLuint pShader)
 {
 	sphere->draw(view, projection, shader);
+	//psb->draw(view, projection, pShader);
 }
 ////////////////////////////////////////////////////////////////////////////////
 void Ball::ApplyForce(glm::vec3 f) 

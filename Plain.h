@@ -24,6 +24,7 @@ private:
 
 public:
 	Plain(GLfloat size, glm::vec3 origin, glm::vec3 color);
+	//Plain(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 color);
 	~Plain();
 
 	void draw(const glm::mat4& viewProjMtx, GLuint shader);
@@ -33,6 +34,7 @@ public:
 	glm::vec3 getNorm() { return norm; }
 	glm::vec3 getOrigin() { return origin; }
 	glm::vec3 getColor() { return color; }
+	bool checkHit(glm::vec3 pos, glm::vec3 nextPos, glm::vec3 vel, GLfloat radius);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
